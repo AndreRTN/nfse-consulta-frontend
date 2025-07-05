@@ -18,7 +18,7 @@
   </div>
 
   <div class="buttons">
-    <button (click)="consultar()" [disabled]="loading">Consultar</button>
+    <button (click)="consultar()" [disabled]="loading || debounceAtivo">Consultar</button>
     <button (click)="limpar()">Limpar</button>
   </div>
 

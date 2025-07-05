@@ -19,6 +19,7 @@ export class ConsultComponent {
   loading: boolean = false;
   consultaRealizada: boolean = false;
   mensagemErro: string = '';
+  debounceAtivo: boolean = false;
   protected title = 'nfse-consulta';
   
   constructor(private nfseService: NfseService, private toastr: ToastrService) {
@@ -29,10 +30,11 @@ export class ConsultComponent {
   }
 
   consultar() {
-    if (!this.validarCampos()) {
+    if (!this.validarCampos() || this.debounceAtivo) {
       return;
     }
 
+    this.ativarDebounce();
     this.iniciarConsulta();
     
     const consultaObservable = this.tipoBusca === 'nfse' 
@@ -43,6 +45,13 @@ export class ConsultComponent {
       next: (dados) => this.tratarSucesso(dados),
       error: (erro) => this.tratarErro(erro)
     });
+  }
+
+  private ativarDebounce(): void {
+    this.debounceAtivo = true;
+    setTimeout(() => {
+      this.debounceAtivo = false;
+    }, 500); 
   }
 
   private validarCampos(): boolean {
@@ -80,9 +89,9 @@ export class ConsultComponent {
     console.log("Sucesso, Dados: ", dados)
     if (this.resultados.length === 0) {
       const tipo = this.tipoBusca === 'nfse' ? 'NFSe' : 'Crédito';
-      this.toastr.info(`Nenhum resultado encontrado para o número ${tipo}`, 'Informação');
+      this.toastr.info(`Nenhum resultado encontrado para o número ${tipo}`, 'Informação', { timeOut: 1000, closeButton: true});
     } else {
-      this.toastr.success('Consulta realizada com sucesso!', 'Sucesso');
+      this.toastr.success('Consulta realizada com sucesso!', 'Sucesso', { timeOut: 1000, closeButton: true});
     }
   }
 
@@ -92,11 +101,11 @@ export class ConsultComponent {
     
     if (erro.status === 404) {
       const tipo = this.tipoBusca === 'nfse' ? 'NFSe' : 'Crédito';
-      this.toastr.error(`Número ${tipo} não encontrado`, 'Erro', { timeOut: 2000});
+      this.toastr.error(`Número ${tipo} não encontrado`, 'Erro', { timeOut: 1000, closeButton: true});
     } else if (erro.status === 0 || erro.status >= 500) {
-      this.toastr.error('Servidor está fora do ar ou desligado', 'Erro de Conexão', { timeOut: 2000});
+      this.toastr.error('Servidor está fora do ar ou desligado', 'Erro de Conexão', { timeOut: 1000, closeButton: true});
     } else {
-      this.toastr.error('Erro interno do servidor', 'Erro', {timeOut: 2000});
+      this.toastr.error('Erro interno do servidor', 'Erro', {timeOut: 1000, closeButton: true});
     }
   }
 

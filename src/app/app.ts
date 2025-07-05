@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ConsultComponent } from './consult/consult.component';
 
 @Component({
   selector: 'app-root',
