@@ -1,0 +1,109 @@
+import { Component } from '@angular/core';
+import { NfseService } from '../services/nfse.service';
+import { CreditoPresenter } from '../models/credit.model'
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
+import { ToastrService } from 'ngx-toastr';
+
+@Component({
+  selector: 'app-consult',
+  imports: [FormsModule, CommonModule, CurrencyPipe],
+  templateUrl: './consult.component.html',
+  styleUrl: './consult.component.scss'
+})
+export class ConsultComponent {
+  tipoBusca: string = 'nfse';
+  valorBusca: string = '';
+  resultados: CreditoPresenter[] = [];
+  loading: boolean = false;
+  consultaRealizada: boolean = false;
+  mensagemErro: string = '';
+  protected title = 'nfse-consulta';
+  
+  constructor(private nfseService: NfseService, private toastr: ToastrService) {
+  }
+
+  showSuccess() {
+    this.toastr.success('Hello world!', 'Toastr fun!');
+  }
+
+  consultar() {
+    if (!this.validarCampos()) {
+      return;
+    }
+
+    this.iniciarConsulta();
+    
+    const consultaObservable = this.tipoBusca === 'nfse' 
+      ? this.nfseService.consultarPorNumeroNfse(this.valorBusca)
+      : this.nfseService.consultarPorNumeroCredito(this.valorBusca);
+
+    consultaObservable.subscribe({
+      next: (dados) => this.tratarSucesso(dados),
+      error: (erro) => this.tratarErro(erro)
+    });
+  }
+
+  private validarCampos(): boolean {
+    this.mensagemErro = '';
+
+    if (!this.valorBusca.trim()) {
+      this.mensagemErro = 'Campo de busca é obrigatório';
+      return false;
+    }
+
+    if (this.tipoBusca === 'nfse' && this.valorBusca.trim().length !== 7) {
+      this.mensagemErro = 'Número NFSe deve ter 7 caracteres';
+      return false;
+    }
+
+    if (this.tipoBusca === 'credito' && this.valorBusca.trim().length !== 6) {
+      this.mensagemErro = 'Número Crédito deve ter 6 caracteres';
+      return false;
+    }
+
+    return true;
+  }
+
+  private iniciarConsulta(): void {
+    this.loading = true;
+    this.resultados = [];
+    this.consultaRealizada = false;
+  }
+
+  private tratarSucesso(dados: CreditoPresenter): void {
+    this.resultados = Array.isArray(dados) ? dados : [dados];
+    this.loading = false;
+    this.consultaRealizada = true;
+    
+    console.log("Sucesso, Dados: ", dados)
+    if (this.resultados.length === 0) {
+      const tipo = this.tipoBusca === 'nfse' ? 'NFSe' : 'Crédito';
+      this.toastr.info(`Nenhum resultado encontrado para o número ${tipo}`, 'Informação');
+    } else {
+      this.toastr.success('Consulta realizada com sucesso!', 'Sucesso');
+    }
+  }
+
+  private tratarErro(erro: any): void {
+    this.loading = false;
+    this.consultaRealizada = true;
+    
+    if (erro.status === 404) {
+      const tipo = this.tipoBusca === 'nfse' ? 'NFSe' : 'Crédito';
+      this.toastr.error(`Número ${tipo} não encontrado`, 'Erro', { timeOut: 2000});
+    } else if (erro.status === 0 || erro.status >= 500) {
+      this.toastr.error('Servidor está fora do ar ou desligado', 'Erro de Conexão', { timeOut: 2000});
+    } else {
+      this.toastr.error('Erro interno do servidor', 'Erro', {timeOut: 2000});
+    }
+  }
+
+  limpar() {
+    this.valorBusca = '';
+    this.resultados = [];
+    this.consultaRealizada = false;
+    this.mensagemErro = '';
+  }
+}
