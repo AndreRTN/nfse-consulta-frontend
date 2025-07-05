@@ -1,50 +1,145 @@
 <div class="consulta-container">
-  <h2>Consulta NFSe</h2>
-  
-  <div class="form-group">
-    <label>Tipo de Busca:</label>
-    <select [(ngModel)]="tipoBusca">
-      <option value="nfse">Número NFSe</option>
-      <option value="credito">Número Crédito</option>
-    </select>
-  </div>
+    <h2>Consulta NFSe</h2>
 
-  <div class="form-group">
-    <label>Valor:</label>
-    <input maxlength="7" type="text" [(ngModel)]="valorBusca" placeholder="Digite o valor para busca">
-     <div *ngIf="mensagemErro" class="erro-validacao">
-    {{mensagemErro}}
-     </div>
-  </div>
-
-  <div class="buttons">
-    <button (click)="consultar()" [disabled]="loading || debounceAtivo">Consultar</button>
-    <button (click)="limpar()">Limpar</button>
-  </div>
-
-  <div *ngIf="loading" class="loading">
-    <p>Carregando...</p>
-  </div>
-
-  <div *ngIf="!loading && resultados.length > 0" class="resultados">
-    <h3>Resultados:</h3>
-    <div *ngFor="let item of resultados" class="resultado-item">
-      <p><strong>Número Crédito:</strong> {{item.numeroCredito}}</p>
-      <p><strong>Número NFSe:</strong> {{item.numeroNfse}}</p>
-      <p><strong>Data Constituição:</strong> {{item.dataConstituicao}}</p>
-      <p><strong>Valor ISSQN:</strong> {{item.valorIssqn | currency:'BRL'}}</p>
-      <p><strong>Tipo Crédito:</strong> {{item.tipoCredito}}</p>
-      <p><strong>Simples Nacional:</strong> {{item.simplesNacional}}</p>
-      <p><strong>Alíquota:</strong> {{item.aliquota}}%</p>
-      <p><strong>Valor Faturado:</strong> {{item.valorFaturado | currency:'BRL'}}</p>
-      <p><strong>Valor Dedução:</strong> {{item.valorDeducao | currency:'BRL'}}</p>
-      <p><strong>Base Cálculo:</strong> {{item.baseCalculo | currency:'BRL'}}</p>
-      <hr>
+    <div class="form-group">
+        <label>Tipo de Busca:</label>
+        <select [(ngModel)]="tipoBusca">
+            <option value="nfse">Número NFSe</option>
+            <option value="credito">Número Crédito</option>
+        </select>
     </div>
-  </div>
 
-  <!-- Mensagem quando vazio -->
-  <div *ngIf="!loading && resultados.length === 0 && valorBusca.trim() && consultaRealizada" class="mensagem-vazio">
-    <p>Nenhum resultado encontrado para a busca.</p>
-  </div>
+    <div class="form-group">
+        <label>Valor:</label>
+        <input maxlength="7" type="text" [(ngModel)]="valorBusca" placeholder="Digite o valor para busca">
+        <div *ngIf="mensagemErro" class="erro-validacao">
+            {{mensagemErro}}
+        </div>
+    </div>
+
+    <div class="buttons">
+        <button (click)="consultar()" [disabled]="loading || debounceAtivo">Consultar</button>
+        <button (click)="limpar()">Limpar</button>
+    </div>
+
+    <div *ngIf="loading" class="loading">
+        <p>Carregando...</p>
+    </div>
+
+    <div *ngIf="!loading && resultados.length > 0" class="resultados">
+        <h3>Resultados:</h3>
+
+        <div class="table-container desktop-layout">
+            <mat-table [dataSource]="resultados" class="mat-elevation-z0">
+                <ng-container matColumnDef="numeroCredito">
+                    <mat-header-cell *matHeaderCellDef>Número Crédito</mat-header-cell>
+                    <mat-cell *matCellDef="let item">{{item.numeroCredito}}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="numeroNfse">
+                    <mat-header-cell *matHeaderCellDef>Número NFSe</mat-header-cell>
+                    <mat-cell *matCellDef="let item">{{item.numeroNfse}}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="dataConstituicao">
+                    <mat-header-cell *matHeaderCellDef>Data Constituição</mat-header-cell>
+                    <mat-cell *matCellDef="let item">{{item.dataConstituicao | date:'dd/MM/yyyy'}}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="valorIssqn">
+                    <mat-header-cell *matHeaderCellDef>Valor ISSQN</mat-header-cell>
+                    <mat-cell *matCellDef="let item">{{item.valorIssqn | currency:'BRL'}}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="tipoCredito">
+                    <mat-header-cell *matHeaderCellDef>Tipo Crédito</mat-header-cell>
+                    <mat-cell *matCellDef="let item">{{item.tipoCredito}}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="simplesNacional">
+                    <mat-header-cell *matHeaderCellDef>Simples Nacional</mat-header-cell>
+                    <mat-cell *matCellDef="let item">{{item.simplesNacional}}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="aliquota">
+                    <mat-header-cell *matHeaderCellDef>Alíquota</mat-header-cell>
+                    <mat-cell *matCellDef="let item">{{item.aliquota}}%</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="valorFaturado">
+                    <mat-header-cell *matHeaderCellDef>Valor Faturado</mat-header-cell>
+                    <mat-cell *matCellDef="let item" class="valor-faturado">{{item.valorFaturado |
+                        currency:'BRL'}}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="valorDeducao">
+                    <mat-header-cell *matHeaderCellDef>Valor Dedução</mat-header-cell>
+                    <mat-cell *matCellDef="let item" class="valor-deducao">{{item.valorDeducao |
+                        currency:'BRL'}}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="baseCalculo">
+                    <mat-header-cell *matHeaderCellDef>Base Cálculo</mat-header-cell>
+                    <mat-cell *matCellDef="let item">{{item.baseCalculo | currency:'BRL'}}</mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+            </mat-table>
+        </div>
+
+
+        <div class="mobile-layout">
+            <div class="card-item" *ngFor="let item of resultados">
+                <div class="card-header">
+                    <div class="card-title">
+                        <strong>NFSe: {{item.numeroNfse}}</strong>
+                        <span class="card-subtitle">Crédito: {{item.numeroCredito}}</span>
+                    </div>
+                    <div class="card-date">{{item.dataConstituicao | date:'dd/MM/yyyy'}}</div>
+                </div>
+
+                <div class="card-content">
+                    <div class="card-row">
+                        <span class="card-label">Valor ISSQN:</span>
+                        <span class="card-value">{{item.valorIssqn | currency:'BRL'}}</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Tipo Crédito:</span>
+                        <span class="card-value">{{item.tipoCredito}}</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Simples Nacional:</span>
+                        <span class="card-value">{{item.simplesNacional}}</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Alíquota:</span>
+                        <span class="card-value">{{item.aliquota}}%</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Valor Faturado:</span>
+                        <span class="card-value valor-faturado">{{item.valorFaturado | currency:'BRL'}}</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Valor Dedução:</span>
+                        <span class="card-value valor-deducao">{{item.valorDeducao | currency:'BRL'}}</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Base Cálculo:</span>
+                        <span class="card-value">{{item.baseCalculo | currency:'BRL'}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="!loading && resultados.length === 0 && valorBusca.trim() && consultaRealizada" class="mensagem-vazio">
+        <p>Nenhum resultado encontrado para a busca.</p>
+    </div>
 </div>

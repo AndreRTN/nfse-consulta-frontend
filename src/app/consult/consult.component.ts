@@ -2,13 +2,12 @@ import { Component } from '@angular/core';
 import { NfseService } from '../services/nfse.service';
 import { CreditoPresenter } from '../models/credit.model'
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe , DatePipe, CommonModule} from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
-
+import { MatTableModule } from '@angular/material/table';
 @Component({
   selector: 'app-consult',
-  imports: [FormsModule, CommonModule, CurrencyPipe],
+  imports: [FormsModule, CommonModule, CurrencyPipe, MatTableModule, DatePipe],
   templateUrl: './consult.component.html',
   styleUrl: './consult.component.scss'
 })
@@ -21,6 +20,19 @@ export class ConsultComponent {
   mensagemErro: string = '';
   debounceAtivo: boolean = false;
   protected title = 'nfse-consulta';
+
+  displayedColumns: string[] = [
+  'numeroCredito',
+  'numeroNfse', 
+  'dataConstituicao',
+  'valorIssqn',
+  'tipoCredito',
+  'simplesNacional',
+  'aliquota',
+  'valorFaturado',
+  'valorDeducao',
+  'baseCalculo'
+];
   
   constructor(private nfseService: NfseService, private toastr: ToastrService) {
   }
